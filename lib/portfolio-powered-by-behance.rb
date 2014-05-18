@@ -37,6 +37,14 @@ module PortfolioPoweredByBehance
       Project.new @cache.get_project_details(id), @config['rendering']
     end
 
+    def do_all_the_stuff
+      c = self.cache
+      c.fetch_projects!
+      c.fetch_all_project_details!
+      c.save_projects!
+      c.save_all_project_details!
+    end
+
   end # class Portfolio
 
 end # module PortfolioPoweredByBehance
