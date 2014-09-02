@@ -44,7 +44,13 @@ module PortfolioPoweredByBehance
         'bottom_margin' => 'margin-bottom',
       }
       
-      @styles['spacing']['project'].each {|k, v| content_class += "#{params[k]}: #{v}px;"}
+      @styles['spacing']['project'].each do |k, v|
+        if params[k] == 'margin-top'
+          content_class += "padding-top: #{v}px;"
+        else
+          content_class += "#{params[k]}: #{v}px;"
+        end
+      end
       @styles['spacing']['modules'].each {|k, v| module_class += "#{params[k]}: #{v}px;"}
 
       # behance aliases
