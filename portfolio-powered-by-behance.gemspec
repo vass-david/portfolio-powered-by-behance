@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = 'portfolio-powered-by-behance'
-  s.version     = '0.0.1'
+  s.version     = '0.0.2'
   s.summary     = 'Portfolio powered by Behance'
   s.description = "Portfolio powered by Behance and cached with redis."
   s.authors     = 'Dávid Vass'

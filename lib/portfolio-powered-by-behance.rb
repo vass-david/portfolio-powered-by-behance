@@ -20,6 +20,7 @@ module PortfolioPoweredByBehance
         db: @config['redis']['db'],
         prefix: @config['redis']['prefix'],
         debug: @config['debug'],
+        images: @config['images']
       )
     end
 

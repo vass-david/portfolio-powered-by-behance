@@ -4,7 +4,7 @@
       .module class=m['type']
         - case m['type']
         - when 'image'
-          img src=m['src'] width=m['width'] height=m['height']
+          img src=(m['local_src'] || m['src']) width=m['width'] height=m['height']
           - if m['caption']
             span.caption == m['caption']
         - when 'text'

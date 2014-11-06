@@ -1,5 +1,7 @@
 require 'redis'
 require 'json'
+require 'open-uri'
+require 'fileutils'
 
 require_relative './behance-api.rb'
 
@@ -14,6 +16,7 @@ module PortfolioPoweredByBehance
         db: opts[:db]
       )
       @prefix = opts[:prefix]
+      @images = opts[:images]
 
       @behance = API.new client_id: opts[:client_id]
 
@@ -125,6 +128,9 @@ module PortfolioPoweredByBehance
     end
 
     def save_project_details!(id)
+      if @images
+        download_project_images!(id)
+      end
       @redis.set project_details_key(id), @project_details[id].to_json
     end
 
@@ -136,7 +142,54 @@ module PortfolioPoweredByBehance
       end
     end
 
+    def download_project_images!(id)
+      project = @project_details[id]
+
+      @images['covers'].each do |size|
+        project['covers_local'] ||= {}
+        project['covers_local'][size.to_s] = download_image(
+          image_path("#{id}/covers", "#{size}-#{project['covers'][size.to_s].split('/').last}"),
+          project['covers'][size.to_s]
+        )
+      end if @images.include? 'covers'
+
+      if @images['content'] != false
+        background = project['styles']['background']
+        project['styles']['background']['image']['local_url'] = download_image(
+          image_path(
+            "#{id}/content", "background-#{background['image']['url'].split('/').last}"
+          ), background['image']['url']
+        ) if background.include? 'image'
+
+        project['modules'].map! do |m|
+          m['local_src'] = download_image(
+            image_path("#{id}/content", "background-#{m['src'].split('/').last}"),
+            m['src']
+          ) if m['type'] == 'image'
+
+          m
+        end
+      end
+
+      @project_details[id] = project
+    end
+
     private
+
+    def download_image(filepath, image_url)
+      dir = File.dirname(filepath)
+      FileUtils::mkdir_p dir unless File.directory?(dir)
+      open filepath, 'wb' do |file|
+        file << open(image_url).read
+      end
+
+      "/#{Pathname.new(filepath).relative_path_from(
+        Pathname.new(File.join ROOT, 'public'))}"
+    end
+
+    def image_path(dir, filename)
+      File.join(ROOT, @images['dir'], dir, filename)
+    end
 
     def project_details_key(id)
       "#{@prefix}project:#{id}:details"

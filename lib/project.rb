@@ -30,7 +30,7 @@ module PortfolioPoweredByBehance
       @styles['background'].each do |k, v|
         case k
         when 'image'
-          project_class += "background-image: url(#{v['url']});"
+          project_class += "background-image: url(#{v['local_url'] || v['url']});"
           project_class += "background-repeat: #{v['repeat']};"
           project_class += "background-position: #{v['position']};"
         when 'color'
