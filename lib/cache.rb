@@ -119,17 +119,15 @@ module PortfolioPoweredByBehance
 
     def save_projects!
       flush_projects!
-      projects = []
-      @projects.each do |p|
-        projects << [p['id'], p.to_json]
-      end
 
-      @redis.hmset key('projects'), *projects.flatten
+      download_projects_images if @images
+
+      @redis.hmset key('projects'), *@projects.map {|p| [p['id'], p.to_json]}.flatten
     end
 
     def save_project_details!(id)
       if @images
-        download_project_images!(id)
+        download_project_detail_images!(id)
       end
       @redis.set project_details_key(id), @project_details[id].to_json
     end
@@ -142,16 +140,22 @@ module PortfolioPoweredByBehance
       end
     end
 
-    def download_project_images!(id)
-      project = @project_details[id]
+    def download_projects_images
+      @projects.map! do |project|
+        @images['covers'].each do |size|
+          project['covers_local'] ||= {}
+          project['covers_local'][size.to_s] = download_image(
+            image_path("#{project['id']}/covers", "#{size}-#{project['covers'][size.to_s].split('/').last}"),
+            project['covers'][size.to_s]
+          )
+        end
 
-      @images['covers'].each do |size|
-        project['covers_local'] ||= {}
-        project['covers_local'][size.to_s] = download_image(
-          image_path("#{id}/covers", "#{size}-#{project['covers'][size.to_s].split('/').last}"),
-          project['covers'][size.to_s]
-        )
+        project
       end if @images.include? 'covers'
+    end
+
+    def download_project_detail_images!(id)
+      project = @project_details[id]
 
       if @images['content'] != false
         background = project['styles']['background']

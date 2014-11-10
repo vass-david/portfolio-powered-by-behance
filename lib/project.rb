@@ -76,7 +76,7 @@ module PortfolioPoweredByBehance
       project_class += "line-height:#{p['line_height']};"
       project_class += "color:#{p['color']};"
 
-      "#{@opts['css_prefix']} .content-wrapper {#{project_class}} #{@opts['css_prefix']} .content-wrapper .content {#{content_class}} #{@opts['css_prefix']} .content-wrapper .content .module {#{module_class}} #{text_styles}"
+      "#{@opts['css_prefix']} .showcase {#{project_class}} #{@opts['css_prefix']} .content-wrapper .content {#{content_class}} #{@opts['css_prefix']} .content-wrapper .content .module {#{module_class}} #{text_styles}"
     end # def parse_style
 
   end # class Project
